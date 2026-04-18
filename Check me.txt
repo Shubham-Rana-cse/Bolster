@@ -1,0 +1,4 @@
+When i go to /login and come back to home i.e. / then i get to see errors about mounting of the animations.
+This does not happen when i use 'a' tag instead of 'Link' tag.
+
+Some components frmo universe.io were not working but now when i intentionally installed a talwindconfig.js file and specified the paths then it worked.
