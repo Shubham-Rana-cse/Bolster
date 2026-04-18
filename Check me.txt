@@ -2,3 +2,15 @@ When i go to /login and come back to home i.e. / then i get to see errors about 
 This does not happen when i use 'a' tag instead of 'Link' tag.
 
 Some components frmo universe.io were not working but now when i intentionally installed a talwindconfig.js file and specified the paths then it worked.
+
+The most likely reason for not reflecting schema changes in the mongodb is that Next.js is still using the old cached Mongoose model.
+
+I export:
+
+export default mongoose.models.User || mongoose.model("User", UserSchema);
+
+When the server starts the first time, mongoose.models.User is created with the old schema. After you edit the schema, Next.js hot reload does not recreate the model, so the new fields are ignored.
+
+Restart your dev server completely by
+    Ctrl + C
+    npm run dev

@@ -1,9 +1,7 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import mongoose from "mongoose";
 import User from "@/Models/User";
-import Payments from "@/Models/Payment";
 import connectDB from "@/DB/connectDB";
 
 const handler = NextAuth({
@@ -34,7 +32,6 @@ const handler = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      if (account.provider === "github") { 
         //conncet to database
         //const client = await mongoose.connect("mongodb://localhost:27017/bolster"); 	//now imported from connectDB
 
@@ -45,34 +42,43 @@ const handler = NextAuth({
 
         if (!currentUser) {
           //create a new user
-          const newUser = await User.create({
+          currentUser = await User.create({
             email: user.email,
-            username: user.email.split('@')[0],
+            username: user.email.split("@")[0],
+            phonenumber: null,
+
+            x: "",
+            instagram: "",
+            linkedin: "",
+
+            profilepic: "",
+            bannerpic: "",
+            document: "",
+
+            razorpayid: "",
+            razorpaysecret: "",
           });
 
-		      console.log(newUser)
-          currentUser = newUser;
+		      //console.log(currentUser);
         }
 
-			  user.name = currentUser.name;
+			  user.name = currentUser.username;
 
-		    return true;	// so that we can login, this is mere syntax
-      }
-      return true;    // Always return true from signIn, even for Google, otherwise sign-in may fail for other providers.
+		    return true;	// Always return true from signIn, so that we can login, this is mere syntax
     },
 
-	async session({ session }) {
-		// Send properties to the client, like an access_token and user id from a provider.
+    async session({ session }) {
+      // Send properties to the client, like an access_token and user id from a provider.
 
-    await connectDB();
-	
-		const dbUser = await User.findOne({email: session.user.email});
+      await connectDB();
+    
+      const dbUser = await User.findOne({email: session.user.email});
 
-    if(dbUser)
-		  session.user.name = dbUser.username;		
-		
-		return session
-	},
+      if(dbUser)
+        session.user.name = dbUser.username;		
+      
+      return session
+    },
   },
 });
 

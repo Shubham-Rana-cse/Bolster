@@ -3,16 +3,20 @@ import mongoose from "mongoose";
 const {Schema, model}  = mongoose;
 
 const UserSchema = new Schema({
-    email: {type: String, required: true},
-    name: {type: String},
-    username: {type: String, required: true},
+    username: {type: String, required: true, unique: true},
+    email: {type: String, required: true, unique: true},
+    phonenumber: {type: Number},
+
+    x: {type: String},
+    instagram: {type: String},
+    linkedin: {type: String},
     
-    profilePic: {type: String},
-    bannerPic: {type: String},
+    profilepic: {type: String},
+    bannerpic: {type: String},
     document: {type: String},
 
-    razorpayId: {type: String},
-    razorpaySecret: {type: String},
+    razorpayid: {type: String},
+    razorpaysecret: {type: String},
 
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},

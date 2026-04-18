@@ -51,7 +51,7 @@ const page = () => {
                         className="w-full bg-white rounded-md py-3 px-4 text-sm border border-gray-300 focus:border-gray-600 outline-none" />
                         <input type='email' placeholder='Email'
                         className="w-full bg-white rounded-md py-3 px-4 text-sm border border-gray-300 focus:border-gray-600 outline-none" />
-                        <input type='email' placeholder='Phone No.'
+                        <input type='number' placeholder='Phone No.'
                         className="w-full bg-white rounded-md py-3 px-4 text-sm border border-gray-300 focus:border-gray-600 outline-none" />
                         <textarea placeholder='Message' rows="6"
                         className="w-full bg-white rounded-md px-4 text-sm pt-3 border border-gray-300 focus:border-gray-600 outline-none"></textarea>

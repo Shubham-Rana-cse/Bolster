@@ -13,13 +13,13 @@ const Page = () => {
   const [profile, setProfile] = useState({
     username: "",
     email: "",
-    phonenumber: "",
+    phonenumber: null,
     x: "",
     instagram: "",
     linkedin: "",
-    profilepicture: null,
-    profilebanner: null,
-    document: null,
+    profilepic: "",
+    bannerpic: "",
+    document: "",
     razorpayid: "",
     razorpaysecret: "",
   });
@@ -35,13 +35,13 @@ const Page = () => {
     setProfile({
       username: user.username || "",
       email: user.email || "",
-      phonenumber: user.phonenumber || "",
+      phonenumber: user.phonenumber || null,
       x: user.x || "",
       instagram: user.instagram || "",
       linkedin: user.linkedin || "",
-      profilepicture: user.profilepicture || null,
-      profilebanner: user.profilebanner || null,
-      document: user.document || null,
+      profilepic: user.profilepic || "",
+      bannerpic: user.bannerpic || "",
+      document: user.document || "",
       razorpayid: user.razorpayid || "",
       razorpaysecret: user.razorpaysecret || "",
     });
@@ -81,7 +81,6 @@ const Page = () => {
 
     router.push(`/${updatedProfile.username}`);
 
-    session.user.name = updatedProfile.username; //also change the session things
     alert("Profile updated!");
   }
 
@@ -105,11 +104,11 @@ const Page = () => {
       <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-gray-200 mb-4">Set your profile</h2>
         <form className="flex flex-col" onSubmit={handleSubmit} > {/* do not write onSubmit rather write action, bcz onSubmit would be an event listener */}
-          <input name="username" placeholder="Username" onChange={handleProfileFormChange} value={profile.username} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
+          <input name="username" placeholder="Username" onChange={handleProfileFormChange} value={profile.username} pattern='[A-Za-z0-9\-_]+' title="Only aplpha-numeric, '-' and '_' are allowed" className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
 
           <input name="email" placeholder="Email" onChange={handleProfileFormChange} value={profile.email} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="email" />
  
-          <input name="phonenumber" placeholder="Phone Number" onChange={handleProfileFormChange} value={profile.phonenumber} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
+          <input name="phonenumber" placeholder="Phone Number" onChange={handleProfileFormChange} value={profile.phonenumber} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="number" />
  
           <input name="x" placeholder="Paste your X link" onChange={handleProfileFormChange} value={profile.x} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
 
@@ -117,15 +116,15 @@ const Page = () => {
  
           <input name="linkedin" placeholder="Paste your Linkedin link" onChange={handleProfileFormChange} value={profile.linkedin} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
  
-          {/* <label htmlFor="profilepic" className='text-zinc-400 cursor-pointer'>Set your profile picture</label>
-          <input name="profilepicture" placeholder="Set your profile picture" onChange={handleProfileFormChange} value={profile.profilepicture} id='profilepic' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="file" />
+          <label htmlFor="profilepic" className='text-zinc-400 cursor-pointer'>Set your profile picture</label>
+          <input name="profilepic" placeholder="Set your profile picture" onChange={handleProfileFormChange} value={profile.profilepic} id='profilepic' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
  
-          <label htmlFor="profilebanner" className='text-zinc-400 cursor-pointer'>Set your profile banner</label>
-          <input name="profilebanner" placeholder="Set your profile banner" onChange={handleProfileFormChange} value={profile.profilebanner} id='profilebanner' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="file" />
+          <label htmlFor="bannerpic" className='text-zinc-400 cursor-pointer'>Set your profile banner</label>
+          <input name="bannerpic" placeholder="Set your profile banner" onChange={handleProfileFormChange} value={profile.bannerpic} id='bannerpic' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
  
           <label htmlFor="document" className='text-zinc-400 cursor-pointer'>Attach a document</label>
-          <input name="document" placeholder="Attach a document" onChange={handleProfileFormChange} value={profile.document} id='document' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="file" />
- */}
+          <input name="document" placeholder="Attach a document" onChange={handleProfileFormChange} value={profile.document} id='document' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
+
           <div className='flex flex-col border border-zinc-500 rounded-2xl p-2'>
             <label className="text-zinc-400 cursor-pointer">Payment Credentials</label>
             <input name="razorpayid" placeholder="Enter your Razorpay Id" onChange={handleProfileFormChange} value={profile.razorpayid} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />

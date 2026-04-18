@@ -1,11 +1,8 @@
 "use client"
 
-import React, {useEffect} from 'react'
-import Image from 'next/image'
+import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from "next-auth/react"
-import Link from 'next/link'
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { useParams } from "next/navigation";
 import PaymentPage from '../Components/PaymentPage'
 
@@ -16,7 +13,7 @@ const page = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
 
-    const username = params.username;
+    const username = params.username.replaceAll('%20',' ');
 
     return (
         <>

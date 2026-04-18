@@ -1,6 +1,8 @@
+"use client"
+
 import React from 'react';
 import styled from 'styled-components';
-/* This snippet is using styled-components. Install it with npm i styled-components or yarn add styled-components, or copy the styles to your own CSS file for this code to work. */
+/* This snippet is using styled-components. I installed it with npm i styled-components or yarn add styled-components, or copy the styles to your own CSS file for this code to work. */
 
 const Button = () => {
   return (

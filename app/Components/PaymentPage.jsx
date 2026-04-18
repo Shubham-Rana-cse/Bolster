@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react"
 import Link from 'next/link'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import Script from 'next/script'
-import { fetchUser, fetchPayments, inititate } from '@/actions/useractions'
+import { fetchUser, fetchPayments, initiate } from '@/actions/useractions'
 
 const PaymentPage = ({username}) => {
     
@@ -30,7 +30,7 @@ const PaymentPage = ({username}) => {
     const pay = async (amount) =>{
         //console.log(paymentForm);
 
-        let order = await inititate(amount, session?.user.name, paymentForm)
+        let order = await initiate(amount, session?.user.name, username, paymentForm)
         const orderId = order.id;
         //console.log(orderId);
 
@@ -79,10 +79,10 @@ const PaymentPage = ({username}) => {
     const getData = async () => {
         let user = await fetchUser(username);   //defined in useractions.js
         
-        /* if (!user) {
+        if (!user) {
             router.replace("/404"); //use router.replace instead of router.push so the invalid profile page is not left in browser history
             return;
-        } */
+        }
     
         setCurrentUser(user);
         console.log(user);
@@ -268,8 +268,9 @@ const PaymentPage = ({username}) => {
                             />
                     </header>
                     <main className='mx-5'>
-                        {
-                            recentPayments.map((payment) => {
+                          {recentPayments.length == 0 && <p className='text-gray-600 text-lg'>No bolsterers yet !</p>}
+
+                          {  recentPayments.map((payment) => {
                                 return <div key={payment.order_id} className='flex my-2 gap-2 items-center justify-between'>
                                     <div className='flex gap-2'>
                                         <img src="/user.svg" alt="user" className='w-6' />

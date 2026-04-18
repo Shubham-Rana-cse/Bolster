@@ -5,7 +5,7 @@ import Payment from "@/Models/Payment"
 import connectDB from "@/DB/connectDB"
 import User from "@/Models/User"
 
-export const inititate = async (amount, to_username, paymentForm)=>{
+export const initiate = async (amount, from_username, to_username, paymentForm)=>{
     await connectDB();
 
     var instance = new Razorpay({
@@ -30,6 +30,7 @@ export const inititate = async (amount, to_username, paymentForm)=>{
     await Payment.create({
         order_id: order.id,
         amount: order.amount,
+        from_user: from_username,
         to_user: to_username,
         name: paymentForm.name,
         message: paymentForm.message
@@ -37,7 +38,6 @@ export const inititate = async (amount, to_username, paymentForm)=>{
 
     return order;
 }
-
 
 export const fetchUser = async (username) =>{
     await connectDB();

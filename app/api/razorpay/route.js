@@ -14,7 +14,7 @@ export const POST = async (req) => {
         return NextResponse.json({success: false, message: "ERROR: Order id not found!"});
     }
 
-    //verif the payment
+    //verify the payment
     let payment = validatePaymentVerification({'order_id': body.razorpay_order_id, 'payment_id': body.razorpay_payment_id}, body.razorpay_signature, process.env.RAZORPAY_SECRET);
 
     if(payment){
