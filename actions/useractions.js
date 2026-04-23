@@ -8,10 +8,27 @@ import User from "@/Models/User"
 export const initiate = async (amount, from_username, to_username, paymentForm)=>{
     await connectDB();
 
-    var instance = new Razorpay({
+    const receiver = await User.findOne({ username: to_username }); //The receiver needs the Razorpay account and credentials; because the payment must go into their account
+
+    if (!receiver) {
+        alert("User not found");
+        throw new Error("User not found");
+    }
+
+    if (!receiver.razorpayid || !receiver.razorpaysecret) {
+        alert("This user has not configured Razorpay");
+        throw new Error("This user has not configured Razorpay");
+    }
+
+    /* var instance = new Razorpay({
         key_id: process.env.RAZORPAY_ID,
         key_secret: process.env.RAZORPAY_SECRET,
-    })
+    }) */
+
+     const instance = new Razorpay({
+        key_id: receiver.razorpayid,
+        key_secret: receiver.razorpaysecret,
+    });
 
     /* instance.orders.create({
         amount: 500,
@@ -69,11 +86,17 @@ export const updateProfile = async (profile,oldusername) => {
         const existingUser = await User.findOne({ username: newProfile.username });
 
         if (existingUser) {
+            alert("User not found");
             return { error: "Username already exists." };
         }
     }
 
     await User.updateOne( { username: oldusername }, { $set: newProfile } );
+
+    if (oldusername !== newProfile.username){
+        await Payment.updateMany( { to_user: oldusername }, {$set: {to_user: newProfile.username}} );
+        await Payment.updateMany({from_user: oldusername}, {$set: {from_user: newProfile.username}} );
+    }
 
     return newProfile;
 }

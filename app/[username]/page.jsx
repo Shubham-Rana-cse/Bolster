@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from "next-auth/react"
 import { useParams } from "next/navigation";
-import PaymentPage from '../Components/PaymentPage'
+import Dashboard from '../Components/Dashboard'
 
 const page = () => {
 
@@ -17,7 +17,7 @@ const page = () => {
 
     return (
         <>
-            <PaymentPage username={username} />
+            <Dashboard username={username} />
         </>
     )
 }

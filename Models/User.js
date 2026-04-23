@@ -11,9 +11,39 @@ const UserSchema = new Schema({
     instagram: {type: String},
     linkedin: {type: String},
     
-    profilepic: {type: String},
-    bannerpic: {type: String},
-    document: {type: String},
+    // This is the correct Mongoose syntax for nested objects with defaults.
+    profilepic: {
+    type: {
+        url: { type: String, default: "" },
+        public_id: { type: String, default: "" },
+    },
+    default: () => ({
+        url: "",
+        public_id: "",
+    }),
+    },
+
+    bannerpic: {
+    type: {
+        url: { type: String, default: "" },
+        public_id: { type: String, default: "" },
+    },
+    default: () => ({
+        url: "",
+        public_id: "",
+    }),
+    },
+
+    document: {
+    type: {
+        url: { type: String, default: "" },
+        public_id: { type: String, default: "" },
+    },
+    default: () => ({
+        url: "",
+        public_id: "",
+    }),
+    },
 
     razorpayid: {type: String},
     razorpaysecret: {type: String},

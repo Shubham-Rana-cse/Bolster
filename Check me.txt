@@ -14,3 +14,12 @@ When the server starts the first time, mongoose.models.User is created with the 
 Restart your dev server completely by
     Ctrl + C
     npm run dev
+
+ value={profile.profilepic} etc. must be removed because file inputs cannot be controlled in React
+
+
+
+When a user uploads a new profile picture/banner/document, the old file remains in Cloudinary unless you explicitly delete it. Over time you will keep paying/storage will increase.
+So instead of only storing the URL store both: 
+        url: "https://...",
+        public_id: "profilepics/abc123"

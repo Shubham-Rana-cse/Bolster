@@ -10,10 +10,15 @@ const Page = () => {
 
   const { data: session, status, update } = useSession();
   const router = useRouter();
+
+  const [profilepic, setProfilePic] = useState(null);
+  const [bannerpic, setBannerPic] = useState(null);
+  const [documentfile, setDocumentFile] = useState(null);
+
   const [profile, setProfile] = useState({
     username: "",
     email: "",
-    phonenumber: null,
+    phonenumber: "",
     x: "",
     instagram: "",
     linkedin: "",
@@ -33,17 +38,19 @@ const Page = () => {
     if(!user)   return;
 
     setProfile({
-      username: user.username || "",
-      email: user.email || "",
-      phonenumber: user.phonenumber || null,
-      x: user.x || "",
-      instagram: user.instagram || "",
-      linkedin: user.linkedin || "",
-      profilepic: user.profilepic || "",
-      bannerpic: user.bannerpic || "",
-      document: user.document || "",
-      razorpayid: user.razorpayid || "",
-      razorpaysecret: user.razorpaysecret || "",
+		username: user.username || "",
+		email: user.email || "",
+		phonenumber: user.phonenumber || "",
+		x: user.x || "",
+		instagram: user.instagram || "",
+		linkedin: user.linkedin || "",
+
+		profilepic: user.profilepic || { url: "", public_id: "" },
+		bannerpic: user.bannerpic || { url: "", public_id: "" },
+		document: user.document || { url: "", public_id: "" },
+
+		razorpayid: user.razorpayid || "",
+		razorpaysecret: user.razorpaysecret || "",
     });
   }
 
@@ -65,12 +72,13 @@ const Page = () => {
     console.log(profile);
   }
 
+  /* saves file urls
   const handleSubmit = async (e)=>{
     const username = session?.user?.name;
     if (!username) return;
 
     let updatedProfile = await updateProfile(profile,session.user.name);
-  
+
     await update({
       ...session,
       user: {
@@ -82,7 +90,80 @@ const Page = () => {
     router.push(`/${updatedProfile.username}`);
 
     alert("Profile updated!");
-  }
+  } */
+
+    //saving files to cloud
+    const handleSubmit = async (e)=>{
+        e.preventDefault(); //Stops the form from doing its default behavior (reloading the page after submit). Without this, our page would refresh immediately and upload logic may never complete.
+
+        const username = session?.user?.name;
+        if (!username) return;
+
+        const formData = new FormData();  //Creates an empty container that can hold both normal text and files. we can of it like a packet we are preparing to send to the API
+
+		//include the previous public ids from the current profile
+        if (profile.profilepic?.public_id) {
+         	 formData.append("oldProfilePublicId", profile.profilepic.public_id);	// sends the Cloudinary public_id of the user's current profile picture to your backend
+        }
+
+        if (profile.bannerpic?.public_id) {
+          	formData.append("oldBannerPublicId", profile.bannerpic.public_id);
+        }
+
+        if (profile.document?.public_id) {
+          	formData.append("oldDocumentPublicId", profile.document.public_id);
+        }
+
+		if (profilepic) {
+			formData.append("profilepic", profilepic);
+		}
+
+		if (bannerpic) {
+			formData.append("bannerpic", bannerpic);
+		}
+
+		if (documentfile) {
+			formData.append("document", documentfile);
+		}
+
+        const res = await fetch("/api/upload-profile", {method: "POST", body: formData})  //Sends that packet to backend route = /api/upload-profile; The browser automatically sends it as multipart/form-data
+
+        const uploadedFiles = await res.json();  //response returned from API
+
+        if(!res.ok){
+          alert(uploadedFiles.error || "Upload failed !");
+          return;
+        }
+
+        // update the profile state
+        const updatedData = {
+          ...profile,
+          profilepic: uploadedFiles.profilepic || profile.profilepic,
+          bannerpic: uploadedFiles.bannerpic || profile.bannerpic,
+          document: uploadedFiles.document || profile.document,
+        };
+        //setProfile(...) is asynchronous, so immediately after calling it, profile still contains the old values
+        //so updatedProfile() still sends the old profile without the new Cloudinary URLs
+        //Instead create a new object first and pass that
+		
+        setProfile(updatedData);
+
+		//Because setProfile(updatedData) does not update profile immediately; react state updates are asynchronous hence we passed updatedData not profile
+        let updatedProfile = await updateProfile(updatedData,session.user.name);
+
+        await update({
+          ...session,
+          user: {
+            ...session.user,
+            name: updatedProfile.username,
+          },
+        });
+
+        router.push(`/${updatedProfile.username}`);
+
+        alert("Profile updated!");
+      }
+      
 
   if (status === "loading") {
       return (
@@ -108,7 +189,7 @@ const Page = () => {
 
           <input name="email" placeholder="Email" onChange={handleProfileFormChange} value={profile.email} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="email" />
  
-          <input name="phonenumber" placeholder="Phone Number" onChange={handleProfileFormChange} value={profile.phonenumber} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="number" />
+          <input name="phonenumber" placeholder="Phone Number" onChange={handleProfileFormChange} value={profile.phonenumber} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
  
           <input name="x" placeholder="Paste your X link" onChange={handleProfileFormChange} value={profile.x} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
 
@@ -116,14 +197,15 @@ const Page = () => {
  
           <input name="linkedin" placeholder="Paste your Linkedin link" onChange={handleProfileFormChange} value={profile.linkedin} className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
  
+          {/* value={profile.profilepic} etc. must be removed because file inputs cannot be controlled in React */}
           <label htmlFor="profilepic" className='text-zinc-400 cursor-pointer'>Set your profile picture</label>
-          <input name="profilepic" placeholder="Set your profile picture" onChange={handleProfileFormChange} value={profile.profilepic} id='profilepic' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
+          <input name="profilepic" placeholder="Set your profile picture" onChange={(e) => setProfilePic(e.target.files[0])} id='profilepic' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="file" />
  
           <label htmlFor="bannerpic" className='text-zinc-400 cursor-pointer'>Set your profile banner</label>
-          <input name="bannerpic" placeholder="Set your profile banner" onChange={handleProfileFormChange} value={profile.bannerpic} id='bannerpic' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
+          <input name="bannerpic" placeholder="Set your profile banner" onChange={(e) => setBannerPic(e.target.files[0])} id='bannerpic' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="file" />
  
           <label htmlFor="document" className='text-zinc-400 cursor-pointer'>Attach a document</label>
-          <input name="document" placeholder="Attach a document" onChange={handleProfileFormChange} value={profile.document} id='document' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
+          <input name="document" placeholder="Attach a document" onChange={(e) => setDocumentFile(e.target.files[0])} id='document' className="bg-gray-700 cursor-pointer text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="file" />
 
           <div className='flex flex-col border border-zinc-500 rounded-2xl p-2'>
             <label className="text-zinc-400 cursor-pointer">Payment Credentials</label>

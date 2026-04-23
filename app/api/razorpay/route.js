@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils";
 import Payment from "@/Models/Payment";
+import User from "@/Models/User";
 import connectDB from "@/DB/connectDB";
 
 export const POST = async (req) => {
@@ -14,8 +15,18 @@ export const POST = async (req) => {
         return NextResponse.json({success: false, message: "ERROR: Order id not found!"});
     }
 
+    const receiver = await User.findOne({ username: order.to_user });
+
+    if (!receiver || !receiver.razorpaysecret) {
+        alert("Receiver Razorpay credentials not found");
+        return NextResponse.json({
+            success: false,
+            message: "Receiver Razorpay credentials not found"
+        });
+    }
+
     //verify the payment
-    let payment = validatePaymentVerification({'order_id': body.razorpay_order_id, 'payment_id': body.razorpay_payment_id}, body.razorpay_signature, process.env.RAZORPAY_SECRET);
+    let payment = validatePaymentVerification({'order_id': body.razorpay_order_id, 'payment_id': body.razorpay_payment_id}, body.razorpay_signature, receiver.razorpaysecret);
 
     if(payment){
         //update the payment status

@@ -1,15 +1,17 @@
 "use client"
 
 import React, {useEffect, useState} from 'react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from "next-auth/react"
 import Link from 'next/link'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import Script from 'next/script'
 import { fetchUser, fetchPayments, initiate } from '@/actions/useractions'
+import { ToastContainer, toast, Bounce  } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 
-const PaymentPage = ({username}) => {
+
+const Dashboard = ({username}) => {
     
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -36,7 +38,8 @@ const PaymentPage = ({username}) => {
 
         var options = {
             //"key": process.env.RAZORPAY_ID,
-            key: process.env.NEXT_PUBLIC_RAZORPAY_ID,
+            /* key: process.env.NEXT_PUBLIC_RAZORPAY_ID, */
+            key: currentUser.razorpayid,
             /* 
                 In Next.js:
                 -> process.env.RAZORPAY_SECRET and process.env.RAZORPAY_ID are only available on the server
@@ -76,6 +79,8 @@ const PaymentPage = ({username}) => {
     const [currentUser, setCurrentUser] = useState({});
     const [recentPayments, setRecentPayments] = useState([])
 
+    let profilepic = currentUser.profilepic?.url || "/documents/defaultProfilePic.png", bannerpic=currentUser.bannerpic?.url|| "/banner1.jpg", document=currentUser.document?.url || "";
+
     const getData = async () => {
         let user = await fetchUser(username);   //defined in useractions.js
         
@@ -99,6 +104,34 @@ const PaymentPage = ({username}) => {
         }
     }, [status, username]);
 
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+      if (session && searchParams.get("paymentDone") === 'true') {
+        toast.success('Payment successful', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          transition: Bounce,
+        });
+
+        // remove query param to prevent repeat
+        setTimeout(() => {  //beacuse page immediatley re-freshes
+          router.replace(`/${username}`, { scroll: false });
+        }, 1000);
+        
+      }
+    }, [session, searchParams]);
+    
+
+    let noOfPayments = recentPayments.length * 100;
+    let noOfBolsterers = new Set(
+      recentPayments.map((payment) => payment.from_user)
+    ).size * 100;
 
     if (status === "loading") {
         return (
@@ -121,20 +154,34 @@ const PaymentPage = ({username}) => {
 
   return (
         <>
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+              transition={Bounce}
+            />
+
             <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
 
             <div className='banner relative'>
-                <img className='w-full' src="/banner1.jpg" alt="banner" />
+                <img className='w-full h-60 object-cover' src={bannerpic?bannerpic:"/banner1.jpg"} /* src="/banner1.jpg" */ alt="banner" />
             </div>
 
             <div className='profile justify-center items-center flex'>
-                <Image width={300} height={300} className='z-10 cursor-pointer absolute top-78 border-2 border-white rounded-full w-30' src={"/documents/ppSizePhoto.jpeg"} alt="profile-picture" />
+                <img width={300} height={300} className='z-10 cursor-pointer absolute top-[19%] border-2 border-white rounded-full w-30' src={profilepic?profilepic:"/documents/defaultProfilePic.png"} /* src={"/documents/ppSizePhoto.jpeg"} */ alt="profile-picture" />
                 <div className='pt-25 text-center'>
                     <div className='font-bold text-xl cursor-pointer'>@{username}</div>
                     <div className='text-sm text-zinc-600'>Solving problems and improving lives through tech!</div>
                     <div className='stats text-sm text-zinc-600'>
-                        <span>9,178 bolsters | </span>
-                        <span>82 posts</span>
+                        <span>{noOfBolsterers} bolsters | </span>
+                        <span>{noOfPayments} payments</span>
                         <span></span>
                     </div>
 
@@ -155,7 +202,7 @@ const PaymentPage = ({username}) => {
 
                     <div className="flex items-center gap-4 justify-center my-2 scale-80">
 
-                        <a target='_blank' href="/documents/myresume6.1.pdf" className="social-button">
+                        <a target='_blank' href={document} /* href="/documents/myresume6.1.pdf" */ className="social-button">
                           <button className="relative w-12 h-12 rounded-full group">
                             <div className="floater w-full h-full absolute top-0 left-0 bg-violet-400 rounded-full duration-300 group-hover:-top-8 group-hover:shadow-2xl" />
                             <div className="cursor-pointer icon relative z-10 w-full h-full flex items-center justify-center border-2 border-violet-400 rounded-full">
@@ -254,8 +301,6 @@ const PaymentPage = ({username}) => {
                 </div>
             </div>
 
-            
-
             <div className='grid grid-cols-2 gap-5'>
                 <div className='bg-[#F0FFF7] rounded-2xl min-h-30 max-h-200 m-4 overflow-y-auto relative'>
                     <header className='sticky top-0 z-10 bg-[#F0FFF7] h-[10%] flex m-5 items-center'>
@@ -293,28 +338,29 @@ const PaymentPage = ({username}) => {
 
                                 <input onChange={handleChange} name='message' value={paymentForm.message} placeholder="Please enter a message for me..." className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="message" />
                                 
-                                <input onChange={handleChange} name='amount' value={paymentForm.amount} placeholder="Enter your amount in ₹" className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="text" />
+                                <input onChange={handleChange} name='amount' value={paymentForm.amount} placeholder="Enter your amount in ₹" className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="number" />
 
                                 <label className="text-zinc-400 cursor-pointer">Or select amount from below </label>
                                 <div className='flex gap-5 mx-auto my-5'>
                                     {/* Inside a <form>, a <button> without an explicit type defaults to type="submit" */}
-                                    <button type='button' onClick={()=>{pay(1000)}} className="cursor-pointer transition-all bg-gray-700 text-white px-6 py-2  rounded-lg border-white border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
+                                    <button type='button' disabled={!paymentForm.name.length} onClick={()=>{pay(1000)}} className="cursor-pointer transition-all bg-gray-700 text-white px-6 py-2  rounded-lg disabled:border-gray-500 border-white border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
                                     ₹10
                                     </button>
-                                    <button type='button' onClick={()=>{pay(2000)}} className="cursor-pointer transition-all bg-gray-700 text-white px-6 py-2 rounded-lg border-white border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
+                                    <button type='button' disabled={!paymentForm.name.length} onClick={()=>{pay(2000)}} className="cursor-pointer transition-all bg-gray-700 text-white px-6 py-2 rounded-lg disabled:border-gray-500 border-white border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
                                     ₹20
                                     </button>
-                                    <button type='button' onClick={()=>{pay(3000)}} className="cursor-pointer transition-all bg-gray-700 text-white px-6 py-2 rounded-lg border-white border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
+                                    <button type='button' disabled={!paymentForm.name.length} onClick={()=>{pay(3000)}} className="cursor-pointer transition-all bg-gray-700 text-white px-6 py-2 rounded-lg disabled:border-gray-500 border-white border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
                                     ₹30
                                     </button>
                                 </div>
 
                                 <button
                                     onClick={()=>{pay(Number.parseInt(paymentForm.amount)*100)}}
-                                    className="bg-zinc-100 rounded-2xl h-14 relative text-black text-xl font-semibold group"
+                                    className="disabled:bg-slate-300 disabled:pointer-events-none bg-zinc-100 rounded-2xl h-14 relative text-black text-xl font-semibold group"
                                     type="button"
+                                    disabled={!paymentForm.name.length || !paymentForm.amount.length}
                                     >
-                                    <div className="hover:bg-blue-700 hover:to-gray-800 rounded-xl h-12 w-1/4 flex items-center justify-center absolute right-1 top-[4px] group-hover:w-[98%] z-10 duration-500">
+                                    <div className="hover:bg-blue-600 hover:to-gray-800 rounded-xl h-12 w-1/4 flex items-center justify-center absolute right-1 top-[4px] group-hover:w-[98%] z-10 duration-500">
                                         <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 1024 1024"
@@ -343,4 +389,4 @@ const PaymentPage = ({username}) => {
     )
 }
 
-export default PaymentPage;
+export default Dashboard;

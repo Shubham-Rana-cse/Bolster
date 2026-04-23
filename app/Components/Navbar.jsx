@@ -69,7 +69,7 @@ const Navbar = () => {
                     {/* Background Animation */}
                     <span className="absolute inset-0 -z-10 origin-left scale-x-0 bg-indigo-700 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:origin-right group-hover:scale-x-100" />
 
-                    <span><span className='text-lg'>Welcome</span> <span className='text-xs'>{session?session.user.email:""}</span></span>
+                    <span><span className='text-lg'>Welcome</span> <span className='text-xs'>{session?session.user.name:"User"}</span></span>
 
                     <svg
                       viewBox="0 0 360 360"
