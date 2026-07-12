@@ -2,7 +2,7 @@
 
 Bolster is a modern crowdfunding platform that enables creators to receive direct financial support from their audience without platform restrictions or high commission cuts.
 
-> ⚠️ This project is currently under development.
+> Much more is comming from Boslter.
 
 ---
 
