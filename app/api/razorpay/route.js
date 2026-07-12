@@ -31,7 +31,7 @@ export const POST = async (req) => {
     if(payment){
         //update the payment status
         const updatedPayment = await Payment.findOneAndUpdate({order_id: body.razorpay_order_id}, {pending: false}, {new: true});    //by doing {new: true} we also return the new updated document
-        return NextResponse.redirect(`http://localhost:3000/${updatedPayment.to_user}?paymentDone=true`);
+        return NextResponse.redirect(`https://get-bolster.vercel.app/${updatedPayment.to_user}?paymentDone=true`);
     }
     else{
         return NextResponse.json({success: false, message: "ERROR: Payment verification failed!"})
