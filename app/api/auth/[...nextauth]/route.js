@@ -51,9 +51,20 @@ const handler = NextAuth({
             instagram: "",
             linkedin: "",
 
-            profilepic: "",
-            bannerpic: "",
-            document: "",
+            profilepic: {
+                url: "",
+                public_id: ""
+            },
+
+            bannerpic: {
+                url: "",
+                public_id: ""
+            },
+
+            document: {
+                url: "",
+                public_id: ""
+            },
 
             razorpayid: "",
             razorpaysecret: "",

@@ -1,0 +1,3 @@
+MONGO_URI=mongodb+srv://shubh_rana01:Rekharana1@@bolster-cluster.hxaluoj.mongodb.net/?appName=bolster-cluster
+
+mongodb+srv://shubh_rana01:loveforindia@bolster-cluster.hxaluoj.mongodb.net/?appName=bolster-cluster
