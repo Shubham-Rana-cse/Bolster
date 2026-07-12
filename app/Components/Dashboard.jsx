@@ -51,7 +51,7 @@ const Dashboard = ({username}) => {
             "description": "Test Transaction",
             "image": "https://example.com/your_logo",
             "order_id": orderId,
-            "callback_url": "https://get-bolster.vercel.app/api/razorpay",
+            "callback_url": `${process.env.NEXTAUTH_URL}/api/razorpay`,
             "prefill": {
                 "name": "Shubham Rana",
                 "email": "shubhamrana181945@gmai.com",
